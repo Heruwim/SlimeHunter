@@ -9,11 +9,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _movementSpeed = 1f;
     [SerializeField] private float _collisionOffset = 0.05f;
     [SerializeField] private ContactFilter2D _movementFilter2D;
+    [SerializeField] private float _shootInterval = 1f;
+    [SerializeField] private float _shootSpeed;
+    [SerializeField] private GameObject _bulletPrefab;
+
     
     private Vector2 _movementInput;
     private Rigidbody2D _playerRigidbody2D;
     private  List<RaycastHit2D> _castCollisions = new List<RaycastHit2D>();
-
+    private float _shootTimer;
     private void Start()
     {
         _playerRigidbody2D = GetComponent<Rigidbody2D>();
@@ -35,6 +39,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+        Shoot();
     }
 
     private bool TryMove(Vector2 direction)
@@ -57,5 +62,21 @@ public class PlayerController : MonoBehaviour
     private void OnMove(InputValue movementValue)
     {
         _movementInput = movementValue.Get<Vector2>();
+    }
+
+    private void Shoot()
+    {
+        _shootTimer += Time.fixedDeltaTime;
+
+        if (_shootTimer >= _shootInterval)
+        {
+            _shootTimer = 0;
+
+            GameObject bullet = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
+            Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
+            Vector3 direction = Vector3.right;
+
+            rigidbody.AddForce(direction * _shootSpeed);
+        }
     }
 }
